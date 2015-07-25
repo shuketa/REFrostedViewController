@@ -30,7 +30,7 @@
 #import "UIViewController+REFrostedViewController.h"
 #import "RECommonFunctions.h"
 
-@interface REFrostedViewController ()
+@interface REFrostedViewController ()<UIGestureRecognizerDelegate>
 
 @property (assign, readwrite, nonatomic) CGFloat imageViewWidth;
 @property (strong, readwrite, nonatomic) UIImage *image;
@@ -80,6 +80,7 @@
     _menuViewSize = CGSizeZero;
     _liveBlur = REUIKitIsFlatMode();
     _panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:_containerViewController action:@selector(panGestureRecognized:)];
+    _panGestureRecognizer.delegate = self;
     _automaticSize = YES;
 }
 
@@ -224,6 +225,21 @@
 - (void)hideMenuViewController
 {
 	[self hideMenuViewControllerWithCompletionHandler:nil];
+}
+
+- (BOOL)gestureRecognizerShouldBegin:(UIPanGestureRecognizer *)panGestureRecognizer {
+    CGPoint velocity = [panGestureRecognizer velocityInView:self.menuViewController.view];
+    if (fabs(velocity.y) < fabs(velocity.x)) {
+        
+        CGFloat xPosition = [panGestureRecognizer locationInView:self.menuViewController.view].x;
+        
+        if ((280 - xPosition) < 60) {
+            return NO;
+        }
+        return YES;
+    }
+    
+    return NO;
 }
 
 - (void)panGestureRecognized:(UIPanGestureRecognizer *)recognizer
